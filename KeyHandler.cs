@@ -11,12 +11,14 @@ namespace Agente1
         private readonly FileLogger fileLogger;
         private readonly StringBuilder currentLine;
         private bool shiftPressed;
+        private bool controlPressed;
 
         public KeyHandler(FileLogger fileLogger)
         {
             this.fileLogger = fileLogger;
             currentLine = new StringBuilder();
             shiftPressed = false;
+            controlPressed = false;
         }
 
         public void HandleKeyDown(Keys key)
@@ -25,9 +27,17 @@ namespace Agente1
             {
                 shiftPressed = true;
             }
+            else if (key == Keys.LControlKey || key == Keys.RControlKey)
+            {
+                if (!controlPressed)
+                {
+                    controlPressed = true;
+                    HandleKeyPress("Ctrl");
+                }
+            }
             else
             {
-                string keyString = GetKeyString(key, shiftPressed);
+                string keyString = GetKeyString(key, shiftPressed, controlPressed);
                 HandleKeyPress(keyString);
             }
         }
@@ -38,9 +48,13 @@ namespace Agente1
             {
                 shiftPressed = false;
             }
+            else if (key == Keys.LControlKey || key == Keys.RControlKey)
+            {
+                controlPressed = false;
+            }
         }
 
-        private string GetKeyString(Keys key, bool shiftPressed)
+        private string GetKeyString(Keys key, bool shiftPressed, bool controlPressed)
         {
             switch (key)
             {
