@@ -33,6 +33,15 @@
                 sw.WriteLine();
             }
         }
-    }
 
+        public void RemoveLastCharacter()
+        {
+            var fileContent = File.ReadAllText(filePath);
+            if (fileContent.Length > 0)
+            {
+                fileContent = fileContent.Substring(0, fileContent.Length - 1);
+                File.WriteAllText(filePath, fileContent);
+            }
+        }
+    }
 }
