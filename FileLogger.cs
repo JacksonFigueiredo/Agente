@@ -1,4 +1,7 @@
-﻿namespace Agente1
+﻿using System;
+using System.IO;
+
+namespace Agente1
 {
     public class FileLogger
     {
@@ -41,6 +44,15 @@
             {
                 fileContent = fileContent.Substring(0, fileContent.Length - 1);
                 File.WriteAllText(filePath, fileContent);
+            }
+        }
+
+        public void LogWindowTitle(string windowTitle)
+        {
+            using (StreamWriter sw = new StreamWriter(filePath, true))
+            {
+                sw.WriteLine();
+                sw.WriteLine($"\nWindow title: {windowTitle} at {DateTime.Now}\n");
             }
         }
     }

