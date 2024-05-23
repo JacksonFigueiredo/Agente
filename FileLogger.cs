@@ -51,8 +51,15 @@ namespace Agente1
         {
             using (StreamWriter sw = new StreamWriter(filePath, true))
             {
-                sw.WriteLine();
                 sw.WriteLine($"\nWindow title: {windowTitle} at {DateTime.Now}\n");
+            }
+        }
+
+        public void LogScreenCapture(string fileName)
+        {
+            using (StreamWriter sw = new StreamWriter(filePath, true))
+            {
+                sw.WriteLine($"\nScreen capture saved as {fileName} at {DateTime.Now}\n");
             }
         }
     }

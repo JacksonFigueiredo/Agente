@@ -49,7 +49,6 @@
             Controls.Add(button1);
             Name = "Agente";
             Text = "Agente";
-            Load += Form1_Load;
             ResumeLayout(false);
         }
 
